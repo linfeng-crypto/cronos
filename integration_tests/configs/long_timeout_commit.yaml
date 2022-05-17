@@ -36,9 +36,9 @@ cronos_777-1:
           enable_auto_deployment: false
       gov:
         voting_params:
-          voting_period: "50s"
+          voting_period: "60s"
         deposit_params:
-          max_deposit_period: "100s"
+          max_deposit_period: "60s"
           min_deposit:
             - denom: "basetcro"
               amount: "1"

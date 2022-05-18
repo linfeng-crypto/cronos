@@ -49,6 +49,7 @@ def test_mempool(cronos):
     # signed = sign_transaction(w3, tx, key)
     # txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
 
+    sended_hash_list = []
     for i in range(5):
         nonce = nonce_begin + i
         tx = {
@@ -59,14 +60,14 @@ def test_mempool(cronos):
         }
         signed = sign_transaction(w3, tx, key_from)
         txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
+        sended_hash_list.append(txhash)
         now_2 = datetime.timestamp(datetime.now())
         print(f"use time: {now_2 - now}")
-        new_tx_hash_list = filter.get_new_entries()
-        print(new_tx_hash_list)
-        assert txhash in new_tx_hash_list
-
     block_num_1 = w3.eth.get_block_number()
     assert block_num_1 == block_num_0
+    print(f"all send tx hash: f{sended_hash_list}")
+    all_pending_tx_hash = filter.get_all_entries()
+    print(f"all pending tx hash: f{all_pending_tx_hash}")
     wait_for_new_blocks(cli, 1)
     # get all txhash in mempool
     all_tx_hash_list = filter.get_all_entries()

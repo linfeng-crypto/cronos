@@ -47,14 +47,22 @@ def test_mempool(cronos):
     #     receipt = w3.eth.wait_for_transaction_receipt(txhash)
     #     assert receipt.status == 1
     #     assert txhash in filter.get_new_entries()
-    tx_hash = send_transaction(
-        w3,
-        {
-            "to": address_to,
-            "value": 10000,
-            "gasPrice": gas_price,
-            "nonce": nonce,
-        },
-        key_from,
-    )
-    assert tx_hash in filter.get_new_entries()
+    current_height_0 = int((cronos.status())["SyncInfo"]["latest_block_height"])
+    for i in range(0, 10):
+        txreceipt = send_transaction(
+            w3,
+            {
+                "to": address_to,
+                "value": 10000,
+                "gasPrice": gas_price,
+                "nonce": nonce + i,
+            },
+            key_from,
+        )
+        assert txreceipt.status == 1
+        new_txs = filter.get_new_entries()
+        print(new_txs)
+        assert txreceipt.transactionHash in filter.get_new_entries()
+    current_height = int((cronos.status())["SyncInfo"]["latest_block_height"])
+    assert current_height == current_height_0
+    assert 1 == 0

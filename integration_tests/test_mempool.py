@@ -34,23 +34,15 @@ def test_mempool(cronos):
     cli = cronos.cosmos_cli(0)
 
     # fist send one tx, check tx in mempool
-    signed = sign_transaction(w3, {"to": address_to, "value": 1000})
-    txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
-    receipt = w3.eth.wait_for_transaction_receipt(txhash)
+    # signed = sign_transaction(w3, {"to": address_to, "value": 1000})
+    # txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
+    # receipt = w3.eth.wait_for_transaction_receipt(txhash)
     current_height = int((cli.status())["SyncInfo"]["latest_block_height"])
-    print(f"current height: {current_height}")
     # assert receipt.status == 1
     # assert filter.get_new_entries() == [txhash]
 
-
-    # send many txs to mempool
-    # for i in range(0, 50):
-    #     signed = sign_transaction(w3, {"to": ADDRS["community"], "value": 100})
-    #     txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
-    #     receipt = w3.eth.wait_for_transaction_receipt(txhash)
-    #     assert receipt.status == 1
-    #     assert txhash in filter.get_new_entries()
     current_height_0 = int((cli.status())["SyncInfo"]["latest_block_height"])
+    print(f"current height 0: {current_height}")
     now = datetime.timestamp(datetime.now())
     nonce = w3.eth.get_transaction_count(address_from)
     for i in range(0, 10):

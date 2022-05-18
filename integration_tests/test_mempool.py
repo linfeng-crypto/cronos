@@ -1,3 +1,5 @@
+import time
+
 import pytest
 from pathlib import Path
 from web3 import Web3
@@ -69,14 +71,12 @@ def test_mempool(cronos):
 
     all_pending = w3.eth.get_filter_changes(filter.filter_id)
     print(f"all pending tx hash 1: {all_pending}")
-
-    wait_for_new_blocks(cli, 1)
+    time.sleep(10)
+    # wait_for_new_blocks(cli, 1)
     all_pending = w3.eth.get_filter_changes(filter.filter_id)
-    print(f"all pending tx hash 2 after one block: {all_pending}")
-
-    # get all txhash in mempool
-    all_tx_hash_list = filter.get_all_entries()
-    assert len(all_tx_hash_list) == 0
+    print(f"all pending tx hash 2 after 10s: {all_pending}")
+    block_num_2 = w3.eth.get_block_number()
+    print(f"block number after 10s: {block_num_2}")
 
     # test contract
     block_num_2 = w3.eth.get_block_number()

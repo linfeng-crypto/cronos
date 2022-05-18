@@ -8,17 +8,19 @@ from .network import setup_custom_cronos, setup_cronos
 pytestmark = pytest.mark.mempool
 
 
-@pytest.fixture(scope="module")
-def cronos(tmp_path_factory):
-    path = tmp_path_factory.mktemp("cronos-mempool")
-    yield from setup_cronos(path, 26200)
-
 # @pytest.fixture(scope="module")
 # def cronos(tmp_path_factory):
 #     path = tmp_path_factory.mktemp("cronos-mempool")
-#     yield from setup_custom_cronos(
-#         path, 26200, Path(__file__).parent / "configs/long_timeout_commit.yaml"
-#     )
+#     yield from setup_cronos(path, 26200)
+
+@pytest.fixture(scope="module")
+def cronos(tmp_path_factory):
+    path = tmp_path_factory.mktemp("cronos-mempool")
+    # cfg = Path(__file__).parent / "../scripts/cronos-devnet.yaml"
+    cfg = Path(__file__).parent / "configs/long_timeout_commit.yaml"
+    yield from setup_custom_cronos(
+        path, 26200, cfg
+    )
 
 def test_mempool(cronos):
     w3: Web3 = cronos.w3

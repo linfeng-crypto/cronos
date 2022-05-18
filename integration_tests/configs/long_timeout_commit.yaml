@@ -16,13 +16,13 @@ cronos_777-1:
       mnemonic: ${VALIDATOR1_MNEMONIC}
       config:
         consensus:
-          timeout_commit: 30s
+          timeout_commit: 1s
     - coins: 1000000000000000000stake,10000000000000000000000basetcro
       staked: 1000000000000000000stake
       mnemonic: ${VALIDATOR2_MNEMONIC}
       config:
         consensus:
-          timeout_commit: 30s
+          timeout_commit: 1s
   accounts:
     - name: community
       coins: 10000000000000000000000basetcro

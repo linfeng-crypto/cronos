@@ -68,10 +68,12 @@ def test_mempool(cronos):
     print(f"all send tx hash: f{sended_hash_list}")
 
     all_pending = w3.eth.get_filter_changes(filter.filter_id)
-    # all_pending_tx_hash = filter.get_all_entries()
+    print(f"all pending tx hash 1: {all_pending}")
 
-    print(f"all pending tx hash: f{all_pending}")
     wait_for_new_blocks(cli, 1)
+    all_pending = w3.eth.get_filter_changes(filter.filter_id)
+    print(f"all pending tx hash 2 after one block: {all_pending}")
+
     # get all txhash in mempool
     all_tx_hash_list = filter.get_all_entries()
     assert len(all_tx_hash_list) == 0

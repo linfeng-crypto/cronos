@@ -34,3 +34,4 @@ def test_mempool(cronos):
         receipt = w3.eth.wait_for_transaction_receipt(txhash)
         assert receipt.status == 1
         assert txhash in filter.get_new_entries()
+    assert filter.get_all_entries() == 101

@@ -3,7 +3,7 @@ from pathlib import Path
 from web3 import Web3
 from datetime import datetime
 
-from .utils import ADDRS, sign_transaction, KEYS, send_transaction
+from .utils import ADDRS, sign_transaction, KEYS, send_transaction, deploy_contract, CONTRACTS, wait_for_new_blocks
 from .network import setup_custom_cronos, setup_cronos
 
 pytestmark = pytest.mark.mempool
@@ -37,31 +37,57 @@ def test_mempool(cronos):
     # signed = sign_transaction(w3, {"to": address_to, "value": 1000})
     # txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
     # receipt = w3.eth.wait_for_transaction_receipt(txhash)
-    current_height = int((cli.status())["SyncInfo"]["latest_block_height"])
+    block_num_0 = w3.eth.get_block_number()
     # assert receipt.status == 1
     # assert filter.get_new_entries() == [txhash]
 
     current_height_0 = int((cli.status())["SyncInfo"]["latest_block_height"])
-    print(f"current height 0: {current_height}")
+    print(f"current block number 0: {block_num_0}")
     now = datetime.timestamp(datetime.now())
-    nonce = w3.eth.get_transaction_count(address_from)
-    for i in range(0, 10):
-        txreceipt = send_transaction(
-            w3,
-            {
-                "to": address_to,
-                "value": 10000,
-                "gasPrice": gas_price,
-                "nonce": nonce + i,
-            },
-            key_from,
-        )
-        assert txreceipt.status == 1
-        new_txs = filter.get_new_entries()
-        print(new_txs)
-        assert txreceipt.transactionHash in new_txs
+    nonce_begin = w3.eth.get_transaction_count(address_from)
+
+    # signed = sign_transaction(w3, tx, key)
+    # txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
+
+    for i in range(5):
+        nonce = nonce_begin + i
+        tx = {
+            "to": address_to,
+            "value": 10000,
+            "gasPrice": gas_price,
+            "nonce": nonce,
+        }
+        signed = sign_transaction(w3, tx, key_from)
+        txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
         now_2 = datetime.timestamp(datetime.now())
         print(f"use time: {now_2 - now}")
+        new_tx_hash_list = filter.get_new_entries()
+        print(new_tx_hash_list)
+        assert txhash in new_tx_hash_list
 
-    current_height = int((cli.status())["SyncInfo"]["latest_block_height"])
-    assert current_height == current_height_0
+    block_num_1 = w3.eth.get_block_number()
+    assert block_num_1 == block_num_0
+    wait_for_new_blocks(cli, 1)
+    # get all txhash in mempool
+    all_tx_hash_list = filter.get_all_entries()
+    assert len(all_tx_hash_list) == 0
+
+    # test contract
+    block_num_2 = w3.eth.get_block_number()
+    print(f"block number 2: f{block_num_2}")
+    contract = deploy_contract(w3, CONTRACTS["Greeter"])
+    tx = contract.functions.setGreeting("world").buildTransaction()
+    signed = sign_transaction(w3, tx, key_from)
+    txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
+
+    # check tx in mempool
+    block_num_3 = w3.eth.get_block_number()
+    assert block_num_3 == block_num_2
+    new_txs = filter.get_new_entries()
+    assert txhash in new_txs
+
+    # wait block update
+    wait_for_new_blocks(cli, 1)
+    greeter_call_result = contract.caller.greet()
+    assert "world" == greeter_call_result
+    print(f"all txs in mempool: {filter.get_all_entries()}")

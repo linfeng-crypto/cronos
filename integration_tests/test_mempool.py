@@ -68,27 +68,24 @@ def test_mempool(cronos):
     block_num_1 = w3.eth.get_block_number()
     assert block_num_1 == block_num_0
     print(f"all send tx hash: f{sended_hash_list}")
-
     all_pending = w3.eth.get_filter_changes(filter.filter_id)
-    print(f"all pending tx hash 1: {all_pending}")
-    time.sleep(10)
-    # wait_for_new_blocks(cli, 1)
+    print(f"all pending tx hash: {all_pending}")
+    # check after 1 block
+    wait_for_new_blocks(cli, 1)
     all_pending = w3.eth.get_filter_changes(filter.filter_id)
-    print(f"all pending tx hash 2 after 10s: {all_pending}")
-    block_num_2 = w3.eth.get_block_number()
-    print(f"block number after 10s: {block_num_2}")
+    print(f"all pending tx hash after 1 block: {all_pending}")
 
     # test contract
+    wait_for_new_blocks(cli, 1)
     block_num_2 = w3.eth.get_block_number()
-    print(f"block number 2: f{block_num_2}")
+    print(f"block number contract begin at height: {block_num_2}")
     contract = deploy_contract(w3, CONTRACTS["Greeter"])
     tx = contract.functions.setGreeting("world").buildTransaction()
     signed = sign_transaction(w3, tx, key_from)
     txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
 
     # check tx in mempool
-    block_num_3 = w3.eth.get_block_number()
-    assert block_num_3 == block_num_2
+    time.sleep(1)
     new_txs = filter.get_new_entries()
     assert txhash in new_txs
 
@@ -96,4 +93,8 @@ def test_mempool(cronos):
     wait_for_new_blocks(cli, 1)
     greeter_call_result = contract.caller.greet()
     assert "world" == greeter_call_result
-    print(f"all txs in mempool: {filter.get_all_entries()}")
+
+    # check mempool
+    all_pending = w3.eth.get_filter_changes(filter.filter_id)
+    print(f"all pending tx hash after 1 block: {all_pending}")
+

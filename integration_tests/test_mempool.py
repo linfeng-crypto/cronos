@@ -11,7 +11,7 @@ pytestmark = pytest.mark.mempool
 def cronos(tmp_path_factory):
     path = tmp_path_factory.mktemp("cronos-mempool")
     yield from setup_custom_cronos(
-        path, 26200, Path(__file__).parent.parent / "scripts/chainmain-devnet.yaml"
+        path, 26200, Path(__file__).parent / "configs/long_timeout_commit.yaml"
     )
 
 def test_mempool(cronos):

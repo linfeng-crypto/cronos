@@ -1,6 +1,7 @@
 import pytest
 from pathlib import Path
 from web3 import Web3
+from datetime import datetime
 
 from .utils import ADDRS, sign_transaction, KEYS, send_transaction
 from .network import setup_custom_cronos, setup_cronos
@@ -30,7 +31,6 @@ def test_mempool(cronos):
     address_from = ADDRS["validator"]
     address_to = ADDRS["community"]
     gas_price = w3.eth.gas_price
-    nonce = w3.eth.get_transaction_count(address_from)
     cli = cronos.cosmos_cli(0)
 
     # fist send one tx, check tx in mempool
@@ -51,6 +51,8 @@ def test_mempool(cronos):
     #     assert receipt.status == 1
     #     assert txhash in filter.get_new_entries()
     current_height_0 = int((cli.status())["SyncInfo"]["latest_block_height"])
+    now = datetime.timestamp(datetime.now())
+    nonce = w3.eth.get_transaction_count(address_from)
     for i in range(0, 10):
         txreceipt = send_transaction(
             w3,
@@ -66,5 +68,8 @@ def test_mempool(cronos):
         new_txs = filter.get_new_entries()
         print(new_txs)
         assert txreceipt.transactionHash in new_txs
+        now_2 = datetime.timestamp(datetime.now())
+        print(f"use time: {now_2 - now}")
+
     current_height = int((cli.status())["SyncInfo"]["latest_block_height"])
     assert current_height == current_height_0

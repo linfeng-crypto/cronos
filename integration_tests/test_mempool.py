@@ -35,10 +35,10 @@ def test_mempool(cronos):
     assert filter.get_new_entries() == [txhash]
 
     # send many txs to mempool
-    # for i in range(0, 100):
-    #     signed = sign_transaction(w3, {"to": ADDRS["community"], "value": 1000})
-    #     txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
-    #     receipt = w3.eth.wait_for_transaction_receipt(txhash)
-    #     assert receipt.status == 1
-    #     assert txhash in filter.get_new_entries()
-    # assert filter.get_all_entries() == 101
+    for i in range(0, 50):
+        signed = sign_transaction(w3, {"to": ADDRS["community"], "value": 1000})
+        txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
+        receipt = w3.eth.wait_for_transaction_receipt(txhash)
+        assert receipt.status == 1
+        assert txhash in filter.get_new_entries()
+    assert filter.get_all_entries() == 50

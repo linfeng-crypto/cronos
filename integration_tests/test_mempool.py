@@ -16,7 +16,6 @@ pytestmark = pytest.mark.mempool
 @pytest.fixture(scope="module")
 def cronos(tmp_path_factory):
     path = tmp_path_factory.mktemp("cronos-mempool")
-    # cfg = Path(__file__).parent / "../scripts/cronos-devnet.yaml"
     cfg = Path(__file__).parent / "configs/long_timeout_commit.yaml"
     yield from setup_custom_cronos(
         path, 26200, cfg
@@ -36,9 +35,7 @@ def test_mempool(cronos):
 
     # send many txs to mempool
     for i in range(0, 50):
-        signed = sign_transaction(w3, {"to": ADDRS["community"], "value": 1000})
+        signed = sign_transaction(w3, {"to": ADDRS["community"], "value": 100})
         txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
-        receipt = w3.eth.wait_for_transaction_receipt(txhash)
-        assert receipt.status == 1
-        assert txhash in filter.get_new_entries()
+        # receipt = w3.eth.wait_for_transaction_receipt(txhash)
     assert len(filter.get_new_entries()) == 50

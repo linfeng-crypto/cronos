@@ -1,28 +1,28 @@
-import time
+from datetime import datetime
+from pathlib import Path
 
 import pytest
-from pathlib import Path
 from web3 import Web3
-from datetime import datetime
 
-from .utils import ADDRS, sign_transaction, KEYS, send_transaction, deploy_contract, CONTRACTS, wait_for_new_blocks
-from .network import setup_custom_cronos, setup_cronos
+from .network import setup_custom_cronos
+from .utils import (
+    ADDRS,
+    CONTRACTS,
+    KEYS,
+    deploy_contract,
+    sign_transaction,
+    wait_for_new_blocks,
+)
 
 pytestmark = pytest.mark.mempool
 
-
-# @pytest.fixture(scope="module")
-# def cronos(tmp_path_factory):
-#     path = tmp_path_factory.mktemp("cronos-mempool")
-#     yield from setup_cronos(path, 26200)
 
 @pytest.fixture(scope="module")
 def cronos(tmp_path_factory):
     path = tmp_path_factory.mktemp("cronos-mempool")
     cfg = Path(__file__).parent / "configs/long_timeout_commit.yaml"
-    yield from setup_custom_cronos(
-        path, 26200, cfg
-    )
+    yield from setup_custom_cronos(path, 26200, cfg)
+
 
 def test_mempool(cronos):
     w3: Web3 = cronos.w3
@@ -55,11 +55,12 @@ def test_mempool(cronos):
 
     # check mempool
     all_pending = w3.eth.get_filter_changes(filter.filter_id)
-    print(f"all pending tx hash after 1 block: {all_pending}")
+    print(f"all pending tx hash after block: {all_pending}")
+    assert len(all_pending) == 0
 
     # check transaction
     block_num_0 = w3.eth.get_block_number()
-    print(f"current block number 0: {block_num_0}")
+    print(f"block number start: {block_num_0}")
     now = datetime.timestamp(datetime.now())
     nonce_begin = w3.eth.get_transaction_count(address_from)
 
@@ -81,10 +82,10 @@ def test_mempool(cronos):
     assert block_num_1 == block_num_0
     print(f"all send tx hash: f{sended_hash_list}")
     all_pending = w3.eth.get_filter_changes(filter.filter_id)
-    print(f"all pending tx hash: {all_pending}")
+    assert len(all_pending) == 0
     # check after 1 block
     wait_for_new_blocks(cli, 1)
     all_pending = w3.eth.get_filter_changes(filter.filter_id)
     print(f"all pending tx hash after 1 block: {all_pending}")
-
-
+    for tx in sended_hash_list:
+        assert tx in all_pending

@@ -35,21 +35,33 @@ def test_mempool(cronos):
     gas_price = w3.eth.gas_price
     cli = cronos.cosmos_cli(0)
 
-    # fist send one tx, check tx in mempool
-    # signed = sign_transaction(w3, {"to": address_to, "value": 1000})
-    # txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
-    # receipt = w3.eth.wait_for_transaction_receipt(txhash)
-    block_num_0 = w3.eth.get_block_number()
-    # assert receipt.status == 1
-    # assert filter.get_new_entries() == [txhash]
+    # test contract
+    wait_for_new_blocks(cli, 1)
+    block_num_2 = w3.eth.get_block_number()
+    print(f"block number contract begin at height: {block_num_2}")
+    contract = deploy_contract(w3, CONTRACTS["Greeter"])
+    tx = contract.functions.setGreeting("world").buildTransaction()
+    signed = sign_transaction(w3, tx, key_from)
+    txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
+    w3.eth.wait_for_transaction_receipt(txhash)
+    # check tx in mempool
+    new_txs = filter.get_new_entries()
+    assert txhash in new_txs
 
-    current_height_0 = int((cli.status())["SyncInfo"]["latest_block_height"])
+    # wait block update
+    wait_for_new_blocks(cli, 1)
+    greeter_call_result = contract.caller.greet()
+    assert "world" == greeter_call_result
+
+    # check mempool
+    all_pending = w3.eth.get_filter_changes(filter.filter_id)
+    print(f"all pending tx hash after 1 block: {all_pending}")
+
+    # check transaction
+    block_num_0 = w3.eth.get_block_number()
     print(f"current block number 0: {block_num_0}")
     now = datetime.timestamp(datetime.now())
     nonce_begin = w3.eth.get_transaction_count(address_from)
-
-    # signed = sign_transaction(w3, tx, key)
-    # txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
 
     sended_hash_list = []
     for i in range(5):
@@ -75,26 +87,4 @@ def test_mempool(cronos):
     all_pending = w3.eth.get_filter_changes(filter.filter_id)
     print(f"all pending tx hash after 1 block: {all_pending}")
 
-    # test contract
-    wait_for_new_blocks(cli, 1)
-    block_num_2 = w3.eth.get_block_number()
-    print(f"block number contract begin at height: {block_num_2}")
-    contract = deploy_contract(w3, CONTRACTS["Greeter"])
-    tx = contract.functions.setGreeting("world").buildTransaction()
-    signed = sign_transaction(w3, tx, key_from)
-    txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
-
-    # check tx in mempool
-    time.sleep(1)
-    new_txs = filter.get_new_entries()
-    assert txhash in new_txs
-
-    # wait block update
-    wait_for_new_blocks(cli, 1)
-    greeter_call_result = contract.caller.greet()
-    assert "world" == greeter_call_result
-
-    # check mempool
-    all_pending = w3.eth.get_filter_changes(filter.filter_id)
-    print(f"all pending tx hash after 1 block: {all_pending}")
 

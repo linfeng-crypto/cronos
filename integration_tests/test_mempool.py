@@ -13,18 +13,16 @@ from .utils import (
     wait_for_new_blocks,
 )
 
-pytestmark = pytest.mark.mempool
-
 
 @pytest.fixture(scope="module")
-def cronos(tmp_path_factory):
+def cronos_mempool(tmp_path_factory):
     path = tmp_path_factory.mktemp("cronos-mempool")
     cfg = Path(__file__).parent / "configs/long_timeout_commit.yaml"
     yield from setup_custom_cronos(path, 26200, cfg)
 
 
-def test_mempool(cronos):
-    w3: Web3 = cronos.w3
+def test_mempool(cronos_mempool):
+    w3: Web3 = cronos_mempool.w3
     filter = w3.eth.filter("pending")
     assert filter.get_new_entries() == []
 
@@ -32,7 +30,7 @@ def test_mempool(cronos):
     address_from = ADDRS["validator"]
     address_to = ADDRS["community"]
     gas_price = w3.eth.gas_price
-    cli = cronos.cosmos_cli(0)
+    cli = cronos_mempool.cosmos_cli(0)
 
     # test contract
     wait_for_new_blocks(cli, 1)

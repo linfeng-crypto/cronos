@@ -1,7 +1,13 @@
 from web3 import Web3
 
-from .utils import ADDRS, sign_transaction, deploy_contract, send_transaction, CONTRACTS, wait_for_new_blocks
-
+from .utils import (
+    ADDRS,
+    CONTRACTS,
+    deploy_contract,
+    send_transaction,
+    sign_transaction,
+    wait_for_new_blocks,
+)
 
 
 def test_pending_transaction_filter(cluster):
@@ -29,10 +35,11 @@ def test_block_filter(cluster):
     assert len(blocks) == 1
 
 def test_event_log_filter(cronos):
-    w3 = cronos.w3
+    w3: Web3 = cronos.w3
     mycontract = deploy_contract(w3, CONTRACTS["Greeter"])
     assert "Hello" == mycontract.caller.greet()
-    event_filter = mycontract.events.ChangeGreeting.createFilter(fromBlock="0x0")
+    current_height = hex(w3.eth.get_block_number())
+    event_filter = mycontract.events.ChangeGreeting.createFilter(fromBlock=current_height)
 
     tx = mycontract.functions.setGreeting("world").buildTransaction()
     tx_receipt = send_transaction(w3, tx)
@@ -44,4 +51,3 @@ def test_event_log_filter(cronos):
     print(f"get event: {}")
     assert new_entries[0] == log
     assert "Hello" == mycontract.caller.greet()
-

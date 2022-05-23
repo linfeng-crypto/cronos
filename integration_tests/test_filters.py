@@ -49,4 +49,4 @@ def test_event_log_filter(cronos):
     new_entries = event_filter.get_new_entries()
     print(f"get event: {new_entries}")
     assert new_entries[0] == log
-    assert "Hello" == mycontract.caller.greet()
+    assert "world" == mycontract.caller.greet()

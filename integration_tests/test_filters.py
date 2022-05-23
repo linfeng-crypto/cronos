@@ -43,7 +43,7 @@ def test_event_log_filter(cronos):
     tx = mycontract.functions.setGreeting("world").buildTransaction()
     tx_receipt = send_transaction(w3, tx)
     assert tx_receipt.status == 1
-    log = mycontract.events.myEvent().processReceipt(tx_receipt)
+    log = mycontract.events.setGreeting().processReceipt(tx_receipt)
     print("log:", log)
     assert 0 == 1
 

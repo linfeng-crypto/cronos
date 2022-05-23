@@ -1,6 +1,6 @@
 from web3 import Web3
 
-from .utils import ADDRS, sign_transaction, deploy_contract, CONTRACTS
+from .utils import ADDRS, sign_transaction, deploy_contract, send_transaction, CONTRACTS
 
 
 
@@ -38,5 +38,12 @@ def test_event_log_filter(cronos):
     print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     print(events)
     print(dir(events))
+    print(events._events)
+
+    tx = mycontract.functions.setGreeting("world").buildTransaction()
+    tx_receipt = send_transaction(w3, tx)
+    assert tx_receipt.status == 1
+    log = mycontract.events.myEvent().processReceipt(tx_receipt)
+    print("log:", log)
     assert 0 == 1
 

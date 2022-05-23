@@ -46,8 +46,7 @@ def test_event_log_filter(cronos):
     log = mycontract.events.ChangeGreeting().processReceipt(tx_receipt)[0]
     assert log["event"] == "ChangeGreeting"
     assert tx_receipt.status == 1
-    # event_filter = w3.eth.filter({"address": mycontract.address})
     new_entries = event_filter.get_new_entries()
-    print(f"get event: {}")
+    print(f"get event: {new_entries}")
     assert new_entries[0] == log
     assert "Hello" == mycontract.caller.greet()

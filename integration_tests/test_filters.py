@@ -24,9 +24,8 @@ def test_block_filter(cluster):
     receipt = w3.eth.wait_for_transaction_receipt(txhash)
     assert receipt.status == 1
     flt = w3.eth.filter('latest')
+    wait_for_new_blocks(cluster.cosmos_cli(0), 1)
     blocks = flt.get_new_entries()
-    wait_for_new_blocks(1)
-    print(f"yyyyyyyyyyyyyyyyyyyyyyyyyyyyy: {blocks}")
     assert len(blocks) == 1
 
 def test_event_log_filter(cronos):
@@ -37,11 +36,12 @@ def test_event_log_filter(cronos):
 
     tx = mycontract.functions.setGreeting("world").buildTransaction()
     tx_receipt = send_transaction(w3, tx)
+    log = mycontract.events.ChangeGreeting().processReceipt(tx_receipt)[0]
+    assert log["event"] == "ChangeGreeting"
     assert tx_receipt.status == 1
     # event_filter = w3.eth.filter({"address": mycontract.address})
-    print(f"fffffffffffffff: {event_filter.get_new_entries()}")
-
-    log = mycontract.events.ChangeGreeting().processReceipt(tx_receipt)
-    print("llllllllllllll:", log)
-    assert 0 == 1
+    new_entries = event_filter.get_new_entries()
+    print(f"get event: {}")
+    assert new_entries[0] == log
+    assert "Hello" == mycontract.caller.greet()
 

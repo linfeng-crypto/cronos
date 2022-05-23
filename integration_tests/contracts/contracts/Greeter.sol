@@ -3,7 +3,7 @@ pragma solidity >0.5.0;
 contract Greeter {
     string public greeting;
 
-    event ChangeGreeting(address _from, string _value);
+    event ChangeGreeting(address from, string value);
 
     constructor() public {
         greeting = "Hello";

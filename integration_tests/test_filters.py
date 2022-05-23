@@ -33,12 +33,10 @@ def test_event_log_filter(cronos):
     w3 = cronos.w3
     mycontract = deploy_contract(w3, CONTRACTS["Greeter"])
     assert "Hello" == mycontract.caller.greet()
-    # event_filter = w3.eth.filter({"address": contract.address})
-    events = mycontract.events
+    abi = mycontract.events.abi
     print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    print(events)
-    print(dir(events))
-    print(events._events)
+    print(abi)
+    print(dir(abi))
 
     tx = mycontract.functions.setGreeting("world").buildTransaction()
     tx_receipt = send_transaction(w3, tx)
@@ -46,4 +44,6 @@ def test_event_log_filter(cronos):
     log = mycontract.events.setGreeting().processReceipt(tx_receipt)
     print("log:", log)
     assert 0 == 1
+    event_filter = w3.eth.filter({"address": contract.address})
+    print (event_filter.get_new_entries())
 

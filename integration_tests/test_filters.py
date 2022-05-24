@@ -30,7 +30,7 @@ def test_block_filter(cronos):
     txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
     receipt = w3.eth.wait_for_transaction_receipt(txhash)
     assert receipt.status == 1
-    wait_for_new_blocks(cronos.cosmos_cli(0), 1)
+    # wait_for_new_blocks(cronos.cosmos_cli(0), 1)
     blocks = flt.get_new_entries()
     assert len(blocks) == 1
 

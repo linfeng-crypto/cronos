@@ -24,12 +24,12 @@ def test_pending_transaction_filter(cluster):
 
 def test_block_filter(cronos):
     w3: Web3 = cronos.w3
+    flt = w3.eth.filter('latest')
     # new blocks
     signed = sign_transaction(w3, {"to": ADDRS["community"], "value": 1000})
     txhash = w3.eth.send_raw_transaction(signed.rawTransaction)
     receipt = w3.eth.wait_for_transaction_receipt(txhash)
     assert receipt.status == 1
-    flt = w3.eth.filter('latest')
     wait_for_new_blocks(cronos.cosmos_cli(0), 1)
     blocks = flt.get_new_entries()
     assert len(blocks) == 1
